@@ -157,7 +157,7 @@ The signing key is the one with no substitute. Restore the other three without i
 
 Because channels are unencrypted, the dump is a readable archive of everything ever said, which is the point of running them that way.
 
-There is nowhere on this host to keep any of it. The 200 GB block allowance is fully consumed by the boot volume, leaving no room for a block volume, and Object Storage has 10 GB free.
+There is nowhere on this host to keep any of it. The whole disk is the boot volume, so every backup has to leave the machine.
 
 ### Taking one
 

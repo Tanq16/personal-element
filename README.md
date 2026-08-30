@@ -7,7 +7,7 @@
 
 ---
 
-A private Matrix homeserver on an Oracle Cloud Always Free ARM instance, serving text channels and Discord-style drop-in voice to a small group of friends.
+A private Matrix homeserver on a small ARM VPS, serving text channels and Discord-style drop-in voice to a small group of friends.
 
 It exists so the group owns its own messages and calls. It is not federated, it does not accept registrations, and it is not intended to grow past roughly ten people.
 
@@ -27,19 +27,16 @@ Everything needed to rebuild it is in this repository. [docs/deployment.md](docs
 
 | | |
 |---|---|
-| Instance | `element-arm`, `VM.Standard.A1.Flex`, 2 OCPU / 12 GB / 200 GB boot |
-| Shape limits | 2.0 Gbps network, 2 Neoverse-N1 cores (1 thread each) |
+| Machine | 2 ARM cores, 12 GB RAM, 200 GB disk |
+| Network | 2.0 Gbps |
 | OS | Ubuntu 24.04 aarch64 |
-| Region / AD | `us-ashburn-1`, AD-2 |
 | Public IP | `203.0.113.10`, ephemeral |
-| Tenancy | `<your tenancy>` |
 
 ```sh
-export OCI_CLI_CONFIG_FILE="$(git rev-parse --show-toplevel)/.env/config"
 ssh -i .env/ssh_element ubuntu@203.0.113.10
 ```
 
-`.env/` holds the OCI config, the API private key, the instance SSH key, and `deployment.env` carrying this deployment's real hostnames, addresses and account names. It is ignored by git, and every such value in this repository is a placeholder.
+`.env/` holds the provider credentials, the instance SSH key, and `deployment.env` carrying this deployment's real hostnames, addresses and account names. It is ignored by git, and every such value in this repository is a placeholder.
 
 ### The stack
 
@@ -135,7 +132,7 @@ That, and device verification and recovery, are in [docs/clients.md](docs/client
 
 ### Matrix and Synapse, over the alternatives
 
-The requirement was Discord-shaped: persistent voice channels, self-hosted, open source, AI agents with real identities, and easy data extraction. On an Ampere A1 box, architecture eliminated two candidates outright.
+The requirement was Discord-shaped: persistent voice channels, self-hosted, open source, AI agents with real identities, and easy data extraction. On an ARM box, architecture eliminated two candidates outright.
 
 | | Verdict |
 |---|---|
@@ -237,9 +234,7 @@ Containers see all 12 GB and both cores by default; adding limits could only cap
 
 - **Every agent joining every channel is visible.** Each one puts a membership event in each timeline and a row in each member list.
 
-- **The public IP is ephemeral and cannot be converted.** Oracle: *"you can't convert the ephemeral public IP to a reserved public IP with address 203.0.113.2."* Stop and start preserve it; termination does not. The tenancy allows 6 reserved IPs in-region, but taking one means a new address and a DNS change.
-
-- **Idle reclamation applies to this instance.** Oracle reclaims when CPU 95th percentile, network, and memory are *all* below 20% across a rolling 7-day window. The conditions are conjunctive, so any one staying above keeps it safe. A reclaimed instance is stopped rather than terminated, and the ephemeral IP survives a stop.
+- **The public IP is ephemeral.** Stopping and starting the instance preserves it, and terminating it does not. Moving to a static address means a new address and a DNS change.
 
 - **Element Call cannot be pointed at centrally.** Element Desktop bundles its own copy inside the asar and reads `Developer.elementCallUrl` at `[SettingLevel.DEVICE]`, which no config file can set. Element X bundles its own and reads a per-device override.
 
@@ -247,9 +242,9 @@ Containers see all 12 GB and both cores by default; adding limits could only cap
 
 - **The `/room` suffix is mandatory** in the Element X and Element Desktop override, because a bare origin renders Element Call's standalone home page, which needs an access token a widget does not have.
 
-- **Capacity.** Against LiveKit's published benchmarks on a 16-core machine, a ten-person voice channel costs roughly a quarter of one core here, and ten-way video roughly one of the two. Bandwidth is never the constraint: ten-way video is about 56 Mbps against 2 Gbps, and the 10 TB monthly egress allowance covers around 400 hours of it.
+- **Capacity.** Against LiveKit's published benchmarks on a 16-core machine, a ten-person voice channel costs roughly a quarter of one core here, and ten-way video roughly one of the two. Bandwidth is never the constraint: ten-way video is about 56 Mbps against 2 Gbps.
 
-- **There is nowhere on the host to keep a backup.** The 200 GB block allowance is fully consumed by the boot volume, so there is no room for a block volume; Object Storage namespace `<your namespace>` has 10 GB free.
+- **There is nowhere on the host to keep a backup.** The whole disk is the boot volume, so every backup has to leave the machine.
 
 - **Synapse has no built-in web admin.** Administration is the HTTP API plus `register_new_matrix_user`. [Ketesa](https://github.com/etkecc/ketesa) is the web UI over that API and ships a prebuilt `/admin` subpath build; it was deliberately skipped because the web terminal covers the same ground for a group this size.
 

@@ -41,7 +41,7 @@ Only Caddy binds a public port. Everything else is on loopback, except LiveKit, 
 - A domain whose DNS you control, resolving publicly so Let's Encrypt can validate it.
 - Caddy, or another reverse proxy. The Caddyfile below is short enough to translate.
 
-This deployment runs on `element-arm`, a `VM.Standard.A1.Flex` with 2 OCPU, 12 GB, and a 200 GB boot volume, on Ubuntu 24.04 aarch64 in `us-ashburn-1`. The stack idles at about 240 MB.
+This deployment runs on a 2-core ARM VPS with 12 GB of RAM and a 200 GB disk, on Ubuntu 24.04 aarch64. The stack idles at about 240 MB.
 
 ## DNS
 
@@ -74,9 +74,9 @@ Port 80 stays closed. Caddy issues certificates over TLS-ALPN-01 on 443, so the 
 
 **7881/tcp is not optional.** Clients on a UDP-hostile network fall back to ICE over TCP. Close it and those people silently cannot join calls.
 
-On this host the rules live in the OCI security list `Default Security List for element-vcn`, with ingress from `0.0.0.0/0`. Oracle's Ubuntu image also ships `/etc/iptables/rules.v4` carrying a catch-all `-A INPUT -j REJECT` that duplicates the security list; it was removed from both the live table and the file, leaving `INPUT` policy `ACCEPT`. The `InstanceServices` chain on `OUTPUT` was left alone, because it restricts `169.254.0.0/16` so non-root users cannot reach the iSCSI target backing the boot volume, and Oracle's guidance is to keep it.
+On this host the rules live in the provider's security group, with ingress from `0.0.0.0/0`. The cloud image also ships `/etc/iptables/rules.v4` carrying a catch-all `-A INPUT -j REJECT` that duplicates the security group; it was removed from both the live table and the file, leaving `INPUT` policy `ACCEPT`. The `InstanceServices` chain on `OUTPUT` was left alone, because it restricts `169.254.0.0/16` so non-root users cannot reach the iSCSI target backing the boot volume.
 
-Do not use `ufw` on that image. Oracle states it can leave an instance unable to boot.
+Do not use `ufw` on that image. The vendor documents that it can leave an instance unable to boot.
 
 ## Directory layout
 
