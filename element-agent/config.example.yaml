@@ -1,0 +1,7 @@
+homeserver: http://127.0.0.1:8008
+server_name: element.example.com
+listen: 0.0.0.0:9000
+client_prefix: /REPLACE_WITH_A_RANDOM_PATH
+state_path: /data/state.json
+reconcile_every: 5m
+backfill_limit: 10
