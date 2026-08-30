@@ -182,7 +182,7 @@ The database dump is consistent without stopping anything, because `pg_dump` run
 
 ### Restoring
 
-Stand the host up through [deployment.md](deployment.md) as far as generating the directory layout, then stop before the first `docker compose up`.
+Stand the host up through [01-deployment.md](01-deployment.md) as far as generating the directory layout, then stop before the first `docker compose up`.
 
 ```sh
 tar xf config-<date>.tar -C ~/element
@@ -199,7 +199,7 @@ docker compose up -d
 
 **The new Postgres cluster must be initialised with `--lc-collate=C --lc-ctype=C`**, which the `POSTGRES_INITDB_ARGS` line in `compose.yaml` does on first start. A dump restored into a default-collation cluster loads without complaint and then misbehaves on ordering, which is slow to diagnose and needs a full reload to fix.
 
-Then run every check under "Verifying it, before trusting it" in [deployment.md](deployment.md).
+Then run every check under "Verifying it, before trusting it" in [01-deployment.md](01-deployment.md).
 
 ## Upgrades
 
@@ -232,6 +232,6 @@ An `m.secret_storage.default_key` row whose content is `{}` means secret storage
 
 ## References
 
-- Standing the stack up from nothing, and every config file: [deployment.md](deployment.md)
-- What each person does on their own device: [clients.md](clients.md)
-- The agent application service: [element-agent.md](element-agent.md)
+- Standing the stack up from nothing, and every config file: [01-deployment.md](01-deployment.md)
+- What each person does on their own device: [03-clients.md](03-clients.md)
+- The agent application service: [04-element-agent.md](04-element-agent.md)

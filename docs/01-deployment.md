@@ -337,7 +337,7 @@ webhook:
 
 **`use_external_ip: true` is required on a cloud VPS.** The interface here carries only `10.0.1.31`, with the public address applied by 1:1 NAT outside the guest. LiveKit discovers the real address over STUN at startup. Without this it advertises the private address in ICE candidates and nobody outside the VPC can connect.
 
-**The `webhook:` block is not optional.** LiveKit posts room and participant lifecycle events to lk-jwt-service, which is how lk-jwt learns that somebody has actually left a call. `api_key` has to name one of the keys under `keys:`, because the SFU signs every payload with the matching secret and lk-jwt verifies the signature. LiveKit is on host networking and lk-jwt publishes on loopback, so the two talk over `127.0.0.1` without a round trip through the proxy. Omit this and calls appear to work perfectly right up until the first client dies without hanging up, which is diagnosed in [operations.md](operations.md#a-call-that-never-ends).
+**The `webhook:` block is not optional.** LiveKit posts room and participant lifecycle events to lk-jwt-service, which is how lk-jwt learns that somebody has actually left a call. `api_key` has to name one of the keys under `keys:`, because the SFU signs every payload with the matching secret and lk-jwt verifies the signature. LiveKit is on host networking and lk-jwt publishes on loopback, so the two talk over `127.0.0.1` without a round trip through the proxy. Omit this and calls appear to work perfectly right up until the first client dies without hanging up, which is diagnosed in [02-operations.md](02-operations.md#a-call-that-never-ends).
 
 **`room: auto_create: false` is what makes the access rules mean anything.** `LIVEKIT_FULL_ACCESS_HOMESERVERS` governs only which homeservers lk-jwt will create SFU rooms for. LiveKit itself creates a room for anyone presenting a valid join token unless auto-create is off, so without this the restriction decides nothing. lk-jwt calls `CreateRoom` explicitly when it issues a token, so turning auto-create off costs nothing on the normal path.
 
@@ -594,6 +594,6 @@ sudo systemctl restart systemd-journald
 
 ## References
 
-- Day-to-day administration, backup, and the ghost-call runbook: [operations.md](operations.md)
-- What each person does on their own device: [clients.md](clients.md)
-- The agent application service, which is not deployed: [element-agent.md](element-agent.md)
+- Day-to-day administration, backup, and the ghost-call runbook: [02-operations.md](02-operations.md)
+- What each person does on their own device: [03-clients.md](03-clients.md)
+- The agent application service, which is not deployed: [04-element-agent.md](04-element-agent.md)

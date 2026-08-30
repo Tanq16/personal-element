@@ -62,7 +62,7 @@ The first session to sign in creates the account's cross-signing identity. Every
 
 If that happens, the only way out is resetting the identity, which is cheap on a deployment like this one. Channels are unencrypted, so no channel history is lost, and only encrypted direct messages lose theirs. Other members see the identity change and verify again.
 
-Checking from the server whether recovery was ever set up is in [operations.md](operations.md#verifying-cross-signing-state).
+Checking from the server whether recovery was ever set up is in [02-operations.md](02-operations.md#verifying-cross-signing-state).
 
 ## The well-known documents
 
@@ -78,5 +78,5 @@ The third, `/.well-known/element/element.json`, is served by Caddy as a literal 
 
 ## References
 
-- Standing the stack up, and the config files these clients read: [deployment.md](deployment.md)
-- Accounts, rooms, and access control: [operations.md](operations.md)
+- Standing the stack up, and the config files these clients read: [01-deployment.md](01-deployment.md)
+- Accounts, rooms, and access control: [02-operations.md](02-operations.md)

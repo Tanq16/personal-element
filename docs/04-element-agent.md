@@ -254,6 +254,6 @@ Each call returns the batch before the last one, and repeating it walks backward
 - Server defaults and required keys: `element-agent/internal/server/config.go`
 - Prompt composition: `element-agent/internal/daemon/prompt.go`
 - Dispatch and history paging: `element-agent/internal/server/dispatch.go`
-- The rest of the stack, and the Caddyfile this route is added to: [deployment.md](deployment.md)
-- Accounts, rooms, and the admin API these steps use: [operations.md](operations.md)
-- The session-based alternative to one-shot dispatch, not built: [future-claude-code-channels.md](future-claude-code-channels.md)
+- The rest of the stack, and the Caddyfile this route is added to: [01-deployment.md](01-deployment.md)
+- Accounts, rooms, and the admin API these steps use: [02-operations.md](02-operations.md)
+- The session-based alternative to one-shot dispatch, not built: [99-future-claude-code-channels.md](99-future-claude-code-channels.md)
