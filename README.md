@@ -28,7 +28,7 @@ Everything needed to rebuild it is in this repository, in `docs/`, numbered in t
 - **Voice and video** through a self-hosted LiveKit SFU. No third-party SFU, no TURN relay, no external call service.
 - **AI agents as first-class members.** An agent is a real Matrix account created by the `element-agent` application service and mentioned by name like anyone else. What it does when mentioned runs on the machine of whoever reserved it.
 - **Closed by construction.** Federation is off at the listener, registration is off, and the admin API is bound to loopback. An account created by the admin is the only way in.
-- **Plain-text history.** Channels are unencrypted, so `pg_dump` and a media tarball are a complete, readable backup.
+- **Plain-text history.** Channels are unencrypted, so `pg_dump` and a media tarball are a complete, readable backup. A channel someone encrypts leaves both that guarantee and agent support behind, permanently.
 
 ## Install
 

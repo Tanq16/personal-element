@@ -36,6 +36,8 @@ With federation off, `public` join rules can only ever mean "anyone holding an a
 
 `enable_registration` and `allow_guest_access` are both false, verified live against `POST /_matrix/client/v3/register`. `encryption_enabled_by_default_for_room_type` is deliberately absent because its default is already `"off"`, and writing `off` in YAML would hand Synapse a boolean where it expects a string. Unencrypted channels are what make bots simple and backups readable. Element still encrypts DMs client-side.
 
+This is a convention rather than a guarantee. Synapse's only encryption settings are `encryption_enabled_by_default_for_room_type` and `encryption_enabled_by_default_for_room_presets`, both of which set a default for new rooms and neither of which prevents one being encrypted later. Any member with power 50 can turn encryption on for a channel, and it cannot be turned back off. Doing so costs both properties at once: the room drops out of a readable backup, and agents stop answering in it. Keeping members at the default power 0 is what actually holds the line.
+
 ### Self-hosted Element Web and Element Call
 
 Originally judged unnecessary, on the grounds that `app.element.io` is static JavaScript talking directly to this homeserver. That was wrong for calls, for two compounding reasons.

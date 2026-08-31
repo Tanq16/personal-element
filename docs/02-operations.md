@@ -155,7 +155,7 @@ Four things need copying off the host. Everything else is reproducible from this
 
 The signing key is the one with no substitute. Restore the other three without it and Synapse comes up as a cryptographically different server under the same name, so existing events fail signature checks and every device has to verify again.
 
-Because channels are unencrypted, the dump is a readable archive of everything ever said, which is the point of running them that way.
+Because channels are unencrypted, the dump is a readable archive of everything ever said, which is the point of running them that way. That holds only for rooms that are actually unencrypted. Anything sent in a room where someone enabled encryption is stored as ciphertext and stays unreadable through a restore, since the keys live on members' devices rather than on the server.
 
 There is nowhere on this host to keep any of it. The whole disk is the boot volume, so every backup has to leave the machine.
 

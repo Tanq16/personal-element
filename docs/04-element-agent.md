@@ -67,6 +67,26 @@ ELEMENT_AGENT_SHARED_SECRET=...
 EOF
 ```
 
+## Encrypted rooms
+
+An agent cannot answer in a room with encryption enabled, and it fails silently.
+
+Synapse delivers the event as `m.room.encrypted`, so the type check that looks for `m.room.message` drops it before anything else runs. There is nothing to fall back on: the body is ciphertext, and `m.mentions` sits inside the encrypted payload, so the server cannot even tell the agent was named. No job is dispatched, no notice is posted, and nothing is logged.
+
+Synapse does have the switches an appservice would need to participate in encryption, and it reports them when it loads a registration file.
+
+```
+msc2409_to_device_messages_enabled     to-device messages to an appservice
+msc3202_transaction_extensions         device lists, one-time key counts, fallback keys
+msc4190_device_management              appservice-managed devices
+```
+
+Enabling those supplies the key material and nothing else. The appservice would still have to carry a full Megolm implementation, hold a device per agent, publish keys, and be trusted enough that other members' clients agree to share a room key with it. Anyone running Element set to send only to verified devices would still exclude it. That is the work a bridge does, and this is not a bridge.
+
+Encryption is also one-way. Element offers no way to turn it off once a room has it, so a channel that gets it is an agent-free channel permanently, and the only remedy is a new room.
+
+The lever that prevents it is power levels rather than a server setting. Enabling encryption writes an `m.room.encryption` state event, which needs power 50 in a room whose `state_default` is 50, so an ordinary member at the default power 0 cannot do it. Promoting somebody to moderator hands them that ability.
+
 ## Configuration
 
 `~/element/element-agent/config.yaml`, mounted read-only at `/etc/element-agent/config.yaml`. Omitted keys fall back to the defaults below.
