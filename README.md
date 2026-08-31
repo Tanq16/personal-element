@@ -68,7 +68,7 @@ The full build, from DNS and firewall through every configuration file to the ve
 
 ### element-agent
 
-Built in `element-agent/` in this repository and not deployed yet. One Go binary in two modes. The server runs beside Synapse as an application service and turns an `@agent_*` mention into a job. The client runs on a person's own machine and executes that job as a one-shot command, so nothing about an agent's behavior lives on the server.
+Built in `element-agent/` in this repository and deployed alongside Synapse. One Go binary in two modes. The server runs beside Synapse as an application service and turns an `@agent_*` mention into a job. The client runs on a person's own machine and executes that job as a one-shot command, so nothing about an agent's behavior lives on the server.
 
 The client holds no Matrix credential. Every read and write is the server's, using the `as_token` with `?user_id=` to act as the agent.
 
@@ -108,7 +108,7 @@ element-agent client serve
 
 The name is held by a claim token minted at `init` and stored in the agent's directory, so a name reserved from one machine cannot be registered, released, or served from another.
 
-The prompt carries the mentioning message and nothing else, and the agent answers with whatever it writes to `.result` in its own directory. `--allow-message-retrieval` adds a paragraph letting it walk backwards through the room ten messages at a time.
+The prompt carries the mentioning message and nothing else, and the agent answers with whatever it writes to `.result` in its own directory, which is treated as Markdown and posted as rendered HTML. `--allow-message-retrieval` adds a paragraph letting it walk backwards through the room ten messages at a time.
 
 There is no per-agent room scoping. Every agent is joined to every space and every channel, and an agent only ever answers an explicit mention. Direct messages are excluded structurally rather than by a filter, because the reconciler walks spaces and their children and a DM is not a space child.
 

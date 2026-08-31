@@ -39,7 +39,7 @@ func (c *Client) Send(ctx context.Context, roomID, userID, body string) (string,
 		EventID string `json:"event_id"`
 	}
 	path := "/_matrix/client/v3/rooms/" + url.PathEscape(roomID) + "/send/m.room.message/" + uuid.New().String()
-	content := Content{MsgType: "m.text", Body: body}
+	content := messageContent(body)
 	if err := c.do(ctx, "PUT", path, c.asToken, asUser(userID), content, &out); err != nil {
 		return "", err
 	}

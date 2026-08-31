@@ -11,6 +11,7 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/rs/zerolog v1.35.1
 	github.com/spf13/cobra v1.10.2
+	github.com/yuin/goldmark v1.8.5
 )
 
 require (

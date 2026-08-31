@@ -9,7 +9,7 @@ import (
 const envelopeReserve = 8192
 
 func contentSize(body string) int {
-	encoded, err := json.Marshal(Content{MsgType: "m.text", Body: body}, lenientJSON)
+	encoded, err := json.Marshal(messageContent(body), lenientJSON)
 	if err != nil {
 		return MaxEventBytes
 	}

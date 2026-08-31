@@ -8,9 +8,11 @@ type Mentions struct {
 }
 
 type Content struct {
-	MsgType  string    `json:"msgtype,omitempty"`
-	Body     string    `json:"body,omitempty"`
-	Mentions *Mentions `json:"m.mentions,omitempty"`
+	MsgType       string    `json:"msgtype,omitempty"`
+	Body          string    `json:"body,omitempty"`
+	Format        string    `json:"format,omitempty"`
+	FormattedBody string    `json:"formatted_body,omitempty"`
+	Mentions      *Mentions `json:"m.mentions,omitempty"`
 }
 
 type Event struct {

@@ -2,7 +2,7 @@
 
 One Go binary in two modes. The server runs beside Synapse as a Matrix application service and turns an `@agent_*` mention into a job. The client runs on a person's own machine and executes that job as a one-shot command, so nothing about an agent's behavior lives on the server.
 
-It is built in `element-agent/` and is not deployed. None of the files below exist on `203.0.113.10` yet.
+It is built in `element-agent/` and runs as a seventh container beside the rest of the stack.
 
 ## How it works
 
@@ -127,24 +127,32 @@ app_service_config_files:
 
 Added to `~/element/compose.yaml`:
 
+The build context is a clone of this repository, so an upgrade is `git pull` followed by a rebuild of that one service.
+
+```sh
+git clone https://github.com/Tanq16/personal-element.git ~/element/personal-element
+```
+
 ```yaml
   element-agent:
     image: element-agent:latest
-    build: ./element-agent
+    build: ./personal-element/element-agent
+    restart: unless-stopped
+    logging: *logging
     env_file: .env.agents
     volumes:
       - ./element-agent/config.yaml:/etc/element-agent/config.yaml:ro
       - ./data/element-agent:/data
     ports:
       - "127.0.0.1:9000:9000"
-    restart: unless-stopped
 ```
 
-The image runs as uid 10001, so the state directory has to be owned by it or the state file cannot be written.
+The image runs as uid 10001, so both the state directory and the mounted config have to be owned by it. The config is the one that bites: at mode 0600 owned by the host user the container cannot read it, and the only symptom is `permission denied` on config load in a restart loop.
 
 ```sh
 mkdir -p ~/element/data/element-agent
 sudo chown 10001:10001 ~/element/data/element-agent
+sudo chown 10001:10001 ~/element/element-agent/config.yaml
 ```
 
 The published port is for Caddy, which runs on the host rather than in compose. Synapse reaches the same process at `http://element-agent:9000` over the compose network.
@@ -167,7 +175,7 @@ One restart, of Synapse only. `app_service_config_files` is parsed at config loa
 
 1. Log in once as `@admin` and keep the access token.
 2. Write `.env.agents`, `data/synapse/agents.yaml`, and `element-agent/config.yaml`.
-3. `mkdir -p ~/element/data/element-agent && sudo chown 10001:10001 ~/element/data/element-agent`
+3. Clone the repository, then `mkdir -p ~/element/data/element-agent` and `chown 10001:10001` both that directory and `element-agent/config.yaml`.
 4. Add the service to `compose.yaml`, then `docker compose up -d --build element-agent`. Naming the service means compose creates that container and touches no other.
 5. Add `app_service_config_files` to `data/synapse/homeserver.yaml`.
 6. `docker compose restart synapse`. This is the disruption. Clients reconnect on their own and channels are unencrypted, so nothing is lost, but a Synapse restart against a call in progress has not been tested here.
@@ -229,6 +237,20 @@ Never pass `--bare` to `claude -p`: it needs `ANTHROPIC_API_KEY`, which bills th
 
 The prompt carries the mentioning message and nothing else. The agent writes its answer to `.result` in its own directory, and standard output is used when that file is absent or empty. The daemon deletes `.result` before every job, so a crashed run cannot have its predecessor's answer posted.
 
+## Output styling
+
+An answer is written as Markdown and posted as rendered HTML. The server converts it with goldmark using the GitHub-flavoured extensions, so headings, lists, tables, code blocks, emphasis, and links all render in Element.
+
+```
+body            the Markdown exactly as the agent wrote it
+format          org.matrix.custom.html
+formatted_body  the rendered HTML
+```
+
+Both fields are sent because the Matrix event carries a plain-text fallback alongside the markup, which is the same shape Element itself produces when a person types Markdown into the composer. A client that ignores `formatted_body` still shows a readable answer.
+
+Nothing has to be asked of the agent for this. The conversion is deterministic and happens after the job returns, so an agent registered before this existed renders correctly without being registered again. Raw HTML written by an agent is escaped rather than passed through, so an answer cannot inject markup into a room.
+
 `--allow-message-retrieval` appends one paragraph telling the agent it may read the conversation before the message, in batches of `backfill_limit`, by running:
 
 ```sh
@@ -243,7 +265,7 @@ Each call returns the batch before the last one, and repeating it walks backward
 
 - Every agent is joined to every space and every channel, and answers only an explicit mention. Direct messages are excluded structurally, because the reconciler walks spaces and their children and a DM is not a space child.
 - Agent names must match `^[a-z0-9][a-z0-9_-]{0,31}$`, and the MXID is `@agent_<name>:element.example.com`.
-- An answer larger than one event is split at 57344 bytes of encoded content, which is the 65536 event limit less an 8192 byte envelope reserve.
+- An answer larger than one event is split at 57344 bytes of encoded content, which is the 65536 event limit less an 8192 byte envelope reserve. The measurement covers the Markdown and the rendered HTML together, since both travel in the same event.
 - The transaction deduplication cache holds 1024 ids in memory, so a restart can cost at most one duplicate reply if Synapse retries a transaction that was already processed.
 - Releasing a name frees it but not the account. Another machine reserving it gets a new claim token and reattaches to the same `@agent_<name>` account with its existing history and room memberships.
 - A deregistered or released agent does not leave any room. It stays joined and in every member list, and goes quiet.

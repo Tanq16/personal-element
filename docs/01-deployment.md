@@ -596,4 +596,4 @@ sudo systemctl restart systemd-journald
 
 - Day-to-day administration, backup, and the ghost-call runbook: [02-operations.md](02-operations.md)
 - What each person does on their own device: [03-clients.md](03-clients.md)
-- The agent application service, which is not deployed: [04-element-agent.md](04-element-agent.md)
+- The agent application service: [04-element-agent.md](04-element-agent.md)
