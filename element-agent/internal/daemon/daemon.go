@@ -299,10 +299,11 @@ func (d *Daemon) execute(name string, frame protocol.Frame) protocol.Frame {
 	defer d.loopback.release(token)
 
 	log.Info().Str("agent", name).Str("job", frame.JobID).Msg("running")
+	dir := d.store.Dir(name)
 	output, err := Run(d.ctx, Job{
 		Agent:   agent,
-		Dir:     d.store.Dir(name),
-		Prompt:  composePrompt(agent, frame.Body, frame.Limit, d.cfg.Loopback),
+		Dir:     dir,
+		Prompt:  composePrompt(agent, dir, frame.Body, frame.Limit, d.cfg.Loopback),
 		Token:   token,
 		Timeout: d.cfg.Timeout,
 	})

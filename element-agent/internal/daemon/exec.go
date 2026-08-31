@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
@@ -31,7 +30,7 @@ func Run(ctx context.Context, job Job) (string, error) {
 	ctx, cancel := context.WithTimeout(ctx, job.Timeout)
 	defer cancel()
 
-	result := filepath.Join(job.Dir, ResultFile)
+	result := resultPath(job.Dir)
 	if err := os.Remove(result); err != nil && !errors.Is(err, os.ErrNotExist) {
 		return "", err
 	}
@@ -68,8 +67,12 @@ func Run(ctx context.Context, job Job) (string, error) {
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		return "", err
 	}
-	if answer := strings.TrimSpace(string(written)); answer != "" {
-		return answer, nil
+	answer := strings.TrimSpace(string(written))
+	if answer == "" {
+		return "", fmt.Errorf("wrote no answer to %s", result)
 	}
-	return strings.TrimSpace(stdout.String()), nil
+	if err := os.Remove(result); err != nil {
+		return "", err
+	}
+	return answer, nil
 }

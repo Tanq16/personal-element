@@ -21,8 +21,8 @@ var registerCmd = &cobra.Command{
 
 Everything after -- is the command the agent runs. The literal {{prompt}} in any
 argument is replaced with the composed prompt before the command is executed. The
-agent answers with whatever it writes to .result in its own directory, falling back
-to standard output when that file is absent.
+agent answers with whatever it writes to .result in its own directory, and a job that
+leaves that file empty or missing is reported as a failure.
 
   element-agent client register reviewer --allow-message-retrieval -- \
     claude -p '{{prompt}}' --dangerously-skip-permissions --model haiku`,

@@ -41,6 +41,10 @@ func (s *Store) Dir(name string) string {
 	return filepath.Join(s.root, "agents", name)
 }
 
+func resultPath(dir string) string {
+	return filepath.Join(dir, ResultFile)
+}
+
 func (s *Store) List() ([]Agent, error) {
 	entries, err := os.ReadDir(filepath.Join(s.root, "agents"))
 	if errors.Is(err, os.ErrNotExist) {

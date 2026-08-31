@@ -240,7 +240,7 @@ An agent moves through three states, and only one of them answers a mention.
       .agents/skills/              the skills, yours to fill
       CLAUDE.md          -> AGENTS.md
       .claude/skills     -> ../.agents/skills
-      .result                      the last answer the agent wrote
+      .result                      the answer in flight, deleted once read
 ```
 
 The scaffolding is agent-agnostic. `AGENTS.md` and `.agents/skills/` are the real files, and the `CLAUDE.md` and `.claude/skills` symlinks are what makes `claude -p` read them without a second copy to keep in step.
@@ -255,7 +255,9 @@ Never pass `--bare` to `claude -p`: it needs `ANTHROPIC_API_KEY`, which bills th
 
 ### What the agent receives
 
-The prompt carries the mentioning message and nothing else. The agent writes its answer to `.result` in its own directory, and standard output is used when that file is absent or empty. The daemon deletes `.result` before every job, so a crashed run cannot have its predecessor's answer posted.
+The prompt carries the mentioning message and nothing else. It names `.result` by its absolute path, so an agent that ignores the working directory it was given still writes where the daemon reads. The daemon deletes the file before every job and again once it has read an answer, so a crashed run cannot have its predecessor's answer posted.
+
+A job that leaves `.result` empty or missing is posted to the room as a failure. Standard output is never used, because it carries the agent's progress and its closing remarks rather than its answer.
 
 ## Output styling
 

@@ -6,7 +6,9 @@ const promptTemplate = `You have been requested to act on this message:
 
 %s
 
-Write your final answer to %s in this directory, overwriting whatever is already there.`
+Write your final answer to %s. That file is a throwaway, so overwrite it whole and
+ignore whatever it already holds. It is the only thing sent back, so it has to carry
+the complete answer on its own.`
 
 const retrievalTemplate = `
 
@@ -16,8 +18,8 @@ command until you have what the request needs.
 
 curl -sS -H "Authorization: Bearer $ELEMENT_AGENT_TOKEN" %s`
 
-func composePrompt(agent Agent, body string, limit int, loopback string) string {
-	prompt := fmt.Sprintf(promptTemplate, body, ResultFile)
+func composePrompt(agent Agent, dir, body string, limit int, loopback string) string {
+	prompt := fmt.Sprintf(promptTemplate, body, resultPath(dir))
 	if agent.AllowMessageRetrieval {
 		prompt += fmt.Sprintf(retrievalTemplate, limit, "http://"+loopback+"/context")
 	}
